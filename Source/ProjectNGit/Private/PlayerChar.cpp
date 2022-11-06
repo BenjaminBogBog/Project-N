@@ -31,7 +31,7 @@ APlayerChar::APlayerChar()
 
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
-	FollowCamera->SetFieldOfView(105.0);
+	FollowCamera->SetFieldOfView(90.0);
 	FollowCamera->bUsePawnControlRotation = false;
 
 	bDead = false;
@@ -42,6 +42,14 @@ APlayerChar::APlayerChar()
 void APlayerChar::BeginPlay()
 {
 	Super::BeginPlay();
+
+	USceneComponent* hitboxComp = GetMesh()->GetChildComponent(0);
+	UBoxComponent* hitbox = Cast<UBoxComponent>(hitboxComp);
+
+	if (hitbox != nullptr)
+		hitbox->OnComponentBeginOverlap.AddDynamic(this, &APlayerChar::OnBeginOverlap);
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Can't find box Component"));
 
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 	
@@ -115,6 +123,10 @@ void APlayerChar::Attack() {
 void APlayerChar::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *OtherActor->GetName());
+
+	if (OtherActor->ActorHasTag("Enemy")) {
+		OtherActor->Destroy();
+	}
 
 }
 
