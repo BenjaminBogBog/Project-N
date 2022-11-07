@@ -52,6 +52,8 @@ void APlayerChar::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("Can't find box Component"));
 
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+
+	bCanAttack = true;
 	
 }
 
@@ -106,6 +108,11 @@ void APlayerChar::MoveRight(float Axis)
 	AddMovementInput(Direction, Axis);
 }
 
+void APlayerChar::InitAttackCooldown()
+{
+	bCanAttack = true;
+}
+
 void APlayerChar::StartSprint() {
 
 	GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
@@ -117,14 +124,38 @@ void APlayerChar::StopSprint() {
 }
 
 void APlayerChar::Attack() {
-	PlayAnimMontage(attackAnim);
+
+	if (bCanAttack && !GetMesh()->GetAnimInstance()->IsAnyMontagePlaying()) {
+
+		switch (comboProgression) {
+		case 0:
+			PlayAnimMontage(attackLightAnim);
+			comboProgression = 1;
+			AttackRate = 0.001f;
+			break;
+		case 1:
+			PlayAnimMontage(attackHeavyAnim);
+			comboProgression = 0;
+			AttackRate = 0.7f;
+			break;
+		}
+			
+
+		FTimerHandle TimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &APlayerChar::InitAttackCooldown, AttackRate, false);
+
+		bCanAttack = false;
+	}
+		
+
+	
 }
 
 void APlayerChar::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *OtherActor->GetName());
 
-	if (OtherActor->ActorHasTag("Enemy")) {
+	if (OtherActor->ActorHasTag("Enemy") && GetMesh()->GetAnimInstance()->IsAnyMontagePlaying()) {
 
 		ACharacter* enemyCharacter = Cast<ACharacter>(OtherActor);
 

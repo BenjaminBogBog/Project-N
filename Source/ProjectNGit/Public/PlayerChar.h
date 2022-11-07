@@ -36,16 +36,26 @@ public:
 		void OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 		USpringArmComponent* CameraBoom;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 		UCameraComponent* FollowCamera;
 
 	void MoveForward(float Axis);
 	void MoveRight(float Axis);
 
+	UFUNCTION()
+	void InitAttackCooldown();
+
 	bool bDead;
+	int comboProgression; //0 = light, 1 = heavy
+
+	UPROPERTY(VisibleAnywhere)
+	bool bCanAttack;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		float AttackRate;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		float WalkSpeed;
@@ -54,7 +64,10 @@ public:
 		float SprintSpeed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		UAnimMontage* attackAnim;
+		UAnimMontage* attackLightAnim;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		UAnimMontage* attackHeavyAnim;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		float CurrentDamage;

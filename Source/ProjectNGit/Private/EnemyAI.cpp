@@ -26,7 +26,7 @@ void AEnemyAI::Tick(float DeltaTime)
 
 	ACharacter* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 	AAIController* AIController = Cast<AAIController>(GetController());
-	//AIController->MoveToActor(Player->GetOwner());
+	AIController->MoveToActor(Player->GetOwner());
 }
 
 // Called to bind functionality to input
