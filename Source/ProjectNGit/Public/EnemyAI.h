@@ -8,6 +8,7 @@
 #include "Perception/PawnSensingComponent.h"
 #include "GameFramework/GameModeBase.h"
 #include "Kismet/GameplayStatics.h"
+#include "NiagaraFunctionLibrary.h"
 #include "AIController.h"
 
 #include "EnemyAI.generated.h"
@@ -22,6 +23,17 @@ public:
 	AEnemyAI();
 
 	UPawnSensingComponent* pawnSense;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		UNiagaraSystem* BloodSplatterFX;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		float MaxHealth;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		float CurrentHealth;
+
+	void ApplyDamage(float damageToApply);
 
 protected:
 	// Called when the game starts or when spawned

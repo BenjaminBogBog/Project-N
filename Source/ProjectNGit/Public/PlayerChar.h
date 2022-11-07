@@ -5,11 +5,14 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 
+#include "EnemyAI.h"
+
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/InputComponent.h"
 #include "Components/BoxComponent.h"
+#include "NiagaraFunctionLibrary.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -52,6 +55,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		UAnimMontage* attackAnim;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		float CurrentDamage;
 
 protected:
 	// Called when the game starts or when spawned

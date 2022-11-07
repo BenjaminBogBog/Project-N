@@ -125,7 +125,13 @@ void APlayerChar::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *OtherActor->GetName());
 
 	if (OtherActor->ActorHasTag("Enemy")) {
-		OtherActor->Destroy();
+
+		ACharacter* enemyCharacter = Cast<ACharacter>(OtherActor);
+
+		AEnemyAI* enemy = Cast<AEnemyAI>(enemyCharacter);
+
+		if (enemy != nullptr)
+			enemy->ApplyDamage(CurrentDamage);
 	}
 
 }

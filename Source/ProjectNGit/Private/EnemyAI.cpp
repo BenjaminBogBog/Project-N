@@ -16,7 +16,7 @@ void AEnemyAI::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	
+	CurrentHealth = MaxHealth;
 }
 
 // Called every frame
@@ -26,7 +26,7 @@ void AEnemyAI::Tick(float DeltaTime)
 
 	ACharacter* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 	AAIController* AIController = Cast<AAIController>(GetController());
-	AIController->MoveToActor(Player->GetOwner());
+	//AIController->MoveToActor(Player->GetOwner());
 }
 
 // Called to bind functionality to input
@@ -34,5 +34,17 @@ void AEnemyAI::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+void AEnemyAI::ApplyDamage(float damageToApply)
+{
+	if (BloodSplatterFX != nullptr)
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodSplatterFX, GetActorLocation());
+
+	CurrentHealth -= damageToApply;
+
+	if (CurrentHealth <= 0) {
+		Destroy();
+	}
 }
 
