@@ -9,6 +9,8 @@
 #include "GameFramework/GameModeBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Navigation/PathFollowingComponent.h"
+#include <string>
 #include "AIController.h"
 
 #include "EnemyAI.generated.h"
@@ -24,6 +26,9 @@ public:
 
 	UPawnSensingComponent* pawnSense;
 
+	UFUNCTION()
+		void AIMoveDelay();
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		UNiagaraSystem* BloodSplatterFX;
 
@@ -34,6 +39,16 @@ public:
 		float CurrentHealth;
 
 	void ApplyDamage(float damageToApply);
+
+	int WalkPointIndex;
+
+	bool bCanWalk;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI Settings")
+		TArray<AActor*> WalkPointsActor;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI Settings")
+		float AIStopDistance;
 
 protected:
 	// Called when the game starts or when spawned

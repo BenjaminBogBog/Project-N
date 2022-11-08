@@ -17,6 +17,12 @@ void AEnemyAI::BeginPlay()
 	Super::BeginPlay();
 	
 	CurrentHealth = MaxHealth;
+
+	ACharacter* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+	AAIController* AIController = Cast<AAIController>(GetController());
+	WalkPointIndex = 0;
+	AIController->MoveToActor(WalkPointsActor[WalkPointIndex]);
+	bCanWalk = false;
 }
 
 // Called every frame
@@ -26,7 +32,41 @@ void AEnemyAI::Tick(float DeltaTime)
 
 	ACharacter* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 	AAIController* AIController = Cast<AAIController>(GetController());
-	AIController->MoveToActor(Player->GetOwner());
+
+	FTimerHandle TimerHandle;
+
+	if (AIController->GetMoveStatus() == EPathFollowingStatus::Idle) {
+
+		if (!GetWorld()->GetTimerManager().IsTimerActive(TimerHandle)) {
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AEnemyAI::AIMoveDelay, 2.0f, false);
+		}
+	}
+
+	if (FVector::Dist(GetActorLocation(), WalkPointsActor[WalkPointIndex]->GetActorLocation()) <= AIStopDistance) {
+
+		AIController->StopMovement();
+
+		if (WalkPointIndex + 1 < WalkPointsActor.Num()) {
+
+			if (bCanWalk) {
+				AIController->MoveToActor(WalkPointsActor[WalkPointIndex + 1]);
+				WalkPointIndex++;
+				bCanWalk = false;
+			}
+			
+		}
+		else {
+
+			if (bCanWalk) {
+				AIController->MoveToActor(WalkPointsActor[0]);
+				WalkPointIndex = 1;
+				bCanWalk = false;
+			}
+		}
+		
+	}
+
+	
 }
 
 // Called to bind functionality to input
@@ -46,5 +86,10 @@ void AEnemyAI::ApplyDamage(float damageToApply)
 	if (CurrentHealth <= 0) {
 		Destroy();
 	}
+}
+
+void AEnemyAI::AIMoveDelay() {
+	UE_LOG(LogTemp, Warning, TEXT("Set Walk to true"));
+	bCanWalk = true;
 }
 
