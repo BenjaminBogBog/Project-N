@@ -10,7 +10,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Navigation/PathFollowingComponent.h"
-#include <string>
 #include "AIController.h"
 
 #include "EnemyAI.generated.h"
@@ -24,7 +23,11 @@ public:
 	// Sets default values for this character's properties
 	AEnemyAI();
 
-	UPawnSensingComponent* pawnSense;
+	UPROPERTY(Category = "AI Settings", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UPawnSensingComponent> pawnSense;
+
+	UFUNCTION()
+		void OnSeePawn(APawn* OtherPawn);
 
 	UFUNCTION()
 		void AIMoveDelay();
@@ -49,6 +52,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI Settings")
 		float AIStopDistance;
+
+
 
 protected:
 	// Called when the game starts or when spawned

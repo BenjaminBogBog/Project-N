@@ -9,6 +9,14 @@ AEnemyAI::AEnemyAI()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	pawnSense = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensing"));
+	pawnSense->bHearNoises = false;
+
+	if(pawnSense != nullptr)
+		UE_LOG(LogTemp, Warning, TEXT("PAWN SENSE: %f"), pawnSense->HearingThreshold);
+
+	pawnSense->OnSeePawn.AddDynamic(this, &AEnemyAI::OnSeePawn);
+
 }
 
 // Called when the game starts or when spawned
@@ -67,6 +75,8 @@ void AEnemyAI::Tick(float DeltaTime)
 	}
 
 	
+
+	
 }
 
 // Called to bind functionality to input
@@ -88,8 +98,14 @@ void AEnemyAI::ApplyDamage(float damageToApply)
 	}
 }
 
+void AEnemyAI::OnSeePawn(APawn* OtherPawn)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Red, TEXT("CAN SEE PAWN"));
+}
+
 void AEnemyAI::AIMoveDelay() {
-	UE_LOG(LogTemp, Warning, TEXT("Set Walk to true"));
 	bCanWalk = true;
 }
+
+
 
