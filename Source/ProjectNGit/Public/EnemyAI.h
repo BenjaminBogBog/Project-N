@@ -54,6 +54,7 @@ public:
 	int WalkPointIndex;
 
 	bool bCanWalk;
+	bool bWalkBoolDebounce;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI Settings")
 	bool bSeesPlayer;

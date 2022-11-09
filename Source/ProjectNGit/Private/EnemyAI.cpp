@@ -50,8 +50,9 @@ void AEnemyAI::Tick(float DeltaTime)
 
 	if (AIController->GetMoveStatus() == EPathFollowingStatus::Idle) {
 
-		if (!GetWorld()->GetTimerManager().IsTimerActive(TimerHandle)) {
+		if (!GetWorld()->GetTimerManager().IsTimerActive(TimerHandle) && !bWalkBoolDebounce) {
 			GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AEnemyAI::AIMoveDelay, 2.0f, false);
+			bWalkBoolDebounce = true;
 		}
 	}
 
@@ -65,6 +66,7 @@ void AEnemyAI::Tick(float DeltaTime)
 				AIController->MoveToActor(WalkPointsActor[WalkPointIndex + 1]);
 				WalkPointIndex++;
 				bCanWalk = false;
+				bWalkBoolDebounce = false;
 			}
 			
 		}
@@ -72,8 +74,9 @@ void AEnemyAI::Tick(float DeltaTime)
 
 			if (bCanWalk) {
 				WalkPointIndex = 0;
-				AIController->MoveToActor(WalkPointsActor[0]);
+				AIController->MoveToActor(WalkPointsActor[WalkPointIndex]);
 				bCanWalk = false;
+				bWalkBoolDebounce = false;
 			}
 		}
 		
@@ -139,6 +142,7 @@ void AEnemyAI::OnSeePawn(APawn* OtherPawn)
 }
 
 void AEnemyAI::AIMoveDelay() {
+	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("WALK TRUE"));
 	bCanWalk = true;
 }
 
