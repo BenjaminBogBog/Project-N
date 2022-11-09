@@ -8,8 +8,9 @@ AEnemyAI::AEnemyAI()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-		
+
 	pawnSense = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensor"));
+	pawnSense->RegisterComponent();
 
 	pawnSense->OnSeePawn.AddDynamic(this, &AEnemyAI::OnSeePawn);
 }
@@ -18,8 +19,6 @@ AEnemyAI::AEnemyAI()
 void AEnemyAI::BeginPlay()
 {
 	Super::BeginPlay();
-
-	
 
 	if (pawnSense != nullptr) {
 		pawnSense->bHearNoises = false;
@@ -47,6 +46,8 @@ void AEnemyAI::Tick(float DeltaTime)
 
 	FTimerHandle TimerHandle;
 
+	LastSeen = GetWorld()->GetFirstPlayerController()->GetPawn();
+
 	if (AIController->GetMoveStatus() == EPathFollowingStatus::Idle) {
 
 		if (!GetWorld()->GetTimerManager().IsTimerActive(TimerHandle)) {
@@ -70,23 +71,40 @@ void AEnemyAI::Tick(float DeltaTime)
 		else {
 
 			if (bCanWalk) {
+				WalkPointIndex = 0;
 				AIController->MoveToActor(WalkPointsActor[0]);
-				WalkPointIndex = 1;
 				bCanWalk = false;
 			}
 		}
 		
 	}
 
-	if(LastSeen != nullptr && pawnSense != nullptr){
 
-		if (!pawnSense->HasLineOfSightTo(LastSeen)) {
-			currentAIState = EAIState::Patrol;
+
+	intervalTime += DeltaTime;
+
+	if (intervalTime >= pawnSense->SensingInterval) {
+
+		if (LastSeen != nullptr && pawnSense != nullptr) {
+
+			if (!pawnSense->CouldSeePawn(LastSeen)) {
+				GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Red, TEXT("PATROL"));
+				currentAIState = EAIState::Patrol;
+
+				AIController->MoveToActor(WalkPointsActor[WalkPointIndex]);
+			}
+			else {
+				GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Red, TEXT("ATTACK"));
+				currentAIState = EAIState::Attack;
+
+				AIController->MoveToActor(Player);
+			}
 		}
-		else {
-			currentAIState = EAIState::Attack;
-		}
+
+		intervalTime = 0;
 	}
+
+	
 
 	
 	

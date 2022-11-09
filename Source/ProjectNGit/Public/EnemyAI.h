@@ -50,6 +50,7 @@ public:
 
 	void ApplyDamage(float damageToApply);
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI Settings")
 	int WalkPointIndex;
 
 	bool bCanWalk;
@@ -67,7 +68,10 @@ public:
 		EAIState currentAIState;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI Settings")
-	AActor* LastSeen;
+	APawn* LastSeen;
+
+	//AI Check Interval
+	float intervalTime;
 
 	AAIController* AIController;
 
