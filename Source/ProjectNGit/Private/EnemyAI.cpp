@@ -24,6 +24,8 @@ void AEnemyAI::BeginPlay()
 		pawnSense->bHearNoises = false;
 		UE_LOG(LogTemp, Warning, TEXT("PAWN SENSE: %f"), pawnSense->HearingThreshold);
 	}
+
+	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 	
 	CurrentHealth = MaxHealth;
 
@@ -88,23 +90,38 @@ void AEnemyAI::Tick(float DeltaTime)
 
 	if (intervalTime >= pawnSense->SensingInterval) {
 
-		if (LastSeen != nullptr && pawnSense != nullptr) {
+		if (LastSeen != nullptr && pawnSense != nullptr && currentAIState != EAIState::Attack) {
 
 			if (!pawnSense->CouldSeePawn(LastSeen)) {
 				GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Red, TEXT("PATROL"));
 				currentAIState = EAIState::Patrol;
 
 				AIController->MoveToActor(WalkPointsActor[WalkPointIndex]);
+				GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 			}
 			else {
-				GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Red, TEXT("ATTACK"));
-				currentAIState = EAIState::Attack;
+				GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Red, TEXT("PUSHING"));
+				currentAIState = EAIState::Pushing;
 
-				AIController->MoveToActor(Player);
+				AIController->MoveToActor(LastSeen);
+				GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
+
 			}
 		}
 
 		intervalTime = 0;
+	}
+
+	if (currentAIState == EAIState::Pushing) {
+
+		if (FVector::Dist(GetActorLocation(), LastSeen->GetActorLocation()) <= AIStopDistance) {
+			GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Red, TEXT("ATTACK"));
+
+			AIController->StopMovement();
+
+			currentAIState = EAIState::Attack;
+
+		}
 	}
 
 	

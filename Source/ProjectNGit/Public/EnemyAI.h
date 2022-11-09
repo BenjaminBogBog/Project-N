@@ -8,6 +8,7 @@
 #include "Perception/PawnSensingComponent.h"
 #include "GameFramework/GameModeBase.h"
 #include "Kismet/GameplayStatics.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Navigation/PathFollowingComponent.h"
 #include "AIController.h"
@@ -18,6 +19,7 @@ UENUM(BlueprintType)
 enum class EAIState : uint8
 {
 	Patrol UMETA(DisplayName = "Patrol"),
+	Pushing UMETA(DisplayName = "Pushing"),
 	Attack UMETA(DisplayName = "Attack"),
 };
 
@@ -70,6 +72,13 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI Settings")
 	APawn* LastSeen;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI Settings")
+		float WalkSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI Settings")
+		float SprintSpeed;
+
 
 	//AI Check Interval
 	float intervalTime;
