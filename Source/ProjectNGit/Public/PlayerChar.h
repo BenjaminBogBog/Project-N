@@ -16,6 +16,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Math/TransformNonVectorized.h"
 #include "Kismet/GameplayStatics.h"
 
 #include "PlayerChar.generated.h"
@@ -48,8 +49,10 @@ public:
 	UFUNCTION()
 	void InitAttackCooldown();
 
+	FVector CheckPoint;
 	bool bDead;
 	int comboProgression; //0 = light, 1 = heavy
+	float fallTimer;
 
 	UPROPERTY(VisibleAnywhere)
 	bool bCanAttack;

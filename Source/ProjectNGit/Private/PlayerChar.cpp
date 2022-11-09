@@ -57,12 +57,29 @@ void APlayerChar::BeginPlay()
 
 	CurrentHealth = MaxHealth;
 	
+
+	CheckPoint = GetActorLocation();
+	
 }
 
 // Called every frame
 void APlayerChar::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (GetCharacterMovement()->IsFalling()) {
+		fallTimer += DeltaTime;
+	}
+
+	if (GetCharacterMovement()->IsMovingOnGround()) {
+		if (fallTimer >= 1.75f) {
+			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, TEXT("DIE FROM FALL DAMAGE"));
+
+			SetActorLocation(CheckPoint);
+		}
+
+		fallTimer = 0;
+	}
 
 }
 
