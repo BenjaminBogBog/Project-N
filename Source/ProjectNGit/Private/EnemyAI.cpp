@@ -8,26 +8,31 @@ AEnemyAI::AEnemyAI()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
-	pawnSense = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensing"));
-	pawnSense->bHearNoises = false;
-
-	if(pawnSense != nullptr)
-		UE_LOG(LogTemp, Warning, TEXT("PAWN SENSE: %f"), pawnSense->HearingThreshold);
+		
+	pawnSense = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensor"));
 
 	pawnSense->OnSeePawn.AddDynamic(this, &AEnemyAI::OnSeePawn);
-
 }
 
 // Called when the game starts or when spawned
 void AEnemyAI::BeginPlay()
 {
 	Super::BeginPlay();
+
+	
+
+	if (pawnSense != nullptr) {
+		pawnSense->bHearNoises = false;
+		UE_LOG(LogTemp, Warning, TEXT("PAWN SENSE: %f"), pawnSense->HearingThreshold);
+	}
 	
 	CurrentHealth = MaxHealth;
 
 	ACharacter* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
-	AAIController* AIController = Cast<AAIController>(GetController());
+
+	AIController = Cast<AAIController>(GetController());
+
+	currentAIState = EAIState::Patrol;
 	WalkPointIndex = 0;
 	AIController->MoveToActor(WalkPointsActor[WalkPointIndex]);
 	bCanWalk = false;
@@ -39,7 +44,6 @@ void AEnemyAI::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	ACharacter* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
-	AAIController* AIController = Cast<AAIController>(GetController());
 
 	FTimerHandle TimerHandle;
 
@@ -74,8 +78,18 @@ void AEnemyAI::Tick(float DeltaTime)
 		
 	}
 
-	
+	if(LastSeen != nullptr && pawnSense != nullptr){
 
+		if (!pawnSense->HasLineOfSightTo(LastSeen)) {
+			currentAIState = EAIState::Patrol;
+		}
+		else {
+			currentAIState = EAIState::Attack;
+		}
+	}
+
+	
+	
 	
 }
 
@@ -100,7 +114,10 @@ void AEnemyAI::ApplyDamage(float damageToApply)
 
 void AEnemyAI::OnSeePawn(APawn* OtherPawn)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Red, TEXT("CAN SEE PAWN"));
+
+	if (OtherPawn->ActorHasTag("Player")) {
+		LastSeen = OtherPawn;
+	}
 }
 
 void AEnemyAI::AIMoveDelay() {

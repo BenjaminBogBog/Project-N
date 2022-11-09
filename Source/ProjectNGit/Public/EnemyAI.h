@@ -14,6 +14,13 @@
 
 #include "EnemyAI.generated.h"
 
+UENUM(BlueprintType)
+enum class EAIState : uint8
+{
+	Patrol UMETA(DisplayName = "Patrol"),
+	Attack UMETA(DisplayName = "Attack"),
+};
+
 UCLASS()
 class PROJECTNGIT_API AEnemyAI : public ACharacter
 {
@@ -24,7 +31,7 @@ public:
 	AEnemyAI();
 
 	UPROPERTY(Category = "AI Settings", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UPawnSensingComponent> pawnSense;
+	UPawnSensingComponent* pawnSense;
 
 	UFUNCTION()
 		void OnSeePawn(APawn* OtherPawn);
@@ -47,13 +54,22 @@ public:
 
 	bool bCanWalk;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI Settings")
+	bool bSeesPlayer;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI Settings")
 		TArray<AActor*> WalkPointsActor;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI Settings")
 		float AIStopDistance;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI Settings")
+		EAIState currentAIState;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI Settings")
+	AActor* LastSeen;
+
+	AAIController* AIController;
 
 protected:
 	// Called when the game starts or when spawned

@@ -54,6 +54,8 @@ void APlayerChar::BeginPlay()
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 
 	bCanAttack = true;
+
+	CurrentHealth = MaxHealth;
 	
 }
 
@@ -170,5 +172,9 @@ void APlayerChar::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 void APlayerChar::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 
+}
+
+void APlayerChar::ApplyDamage(float damage) {
+	CurrentHealth -= damage;
 }
 

@@ -69,17 +69,26 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		UAnimMontage* attackHeavyAnim;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Player Stats")
 		float CurrentDamage;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player Stats")
+		float CurrentHealth;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Player Stats")
+		float MaxHealth;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	//Input Functions - Functions that trigger on input
 	void StartSprint();
 	void StopSprint();
 
 	void Attack();
+	
+	void ApplyDamage(float damage);
 
 public:	
 	// Called every frame
