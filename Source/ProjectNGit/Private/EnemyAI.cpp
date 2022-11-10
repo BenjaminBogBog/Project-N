@@ -164,8 +164,18 @@ void AEnemyAI::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 }
 
-// Called whenever Enemy takes damage
-void AEnemyAI::Damage(float damageToApply)
+// Delegate called when AISense sees a pawn
+void AEnemyAI::OnSeePawn(APawn* OtherPawn)
+{
+	//Assign LastSeen to the referred pawn whenever AI sees player, 
+	//this is used in other parts of the code to check if AI should attack to the player or not
+	if (OtherPawn->ActorHasTag("Player")) {
+		LastSeen = OtherPawn;
+	}
+}
+
+//Function used to Take Damage/ Apply Damage to Enemy
+void AEnemyAI::Damage(float damageToApply, float pushForce)
 {
 	//Spawn particles
 	if (BloodSplatterFX != nullptr)
@@ -180,23 +190,13 @@ void AEnemyAI::Damage(float damageToApply)
 	actorLocation = this->GetActorLocation();
 	playerLocation = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->GetActorLocation();
 	FVector ImpulseDirection = actorLocation - playerLocation;
-	GetCharacterMovement()->Velocity += ImpulseDirection.GetSafeNormal() * 1000.0;
+	GetCharacterMovement()->Velocity += ImpulseDirection.GetSafeNormal() * pushForce;
 
 	//Check if enemy is dead
 	if (CurrentHealth <= 0) {
-		
+
 		//LOGIC for dying
 		Destroy();
-	}
-}
-
-// Delegate called when AISense sees a pawn
-void AEnemyAI::OnSeePawn(APawn* OtherPawn)
-{
-	//Assign LastSeen to the referred pawn whenever AI sees player, 
-	//this is used in other parts of the code to check if AI should attack to the player or not
-	if (OtherPawn->ActorHasTag("Player")) {
-		LastSeen = OtherPawn;
 	}
 }
 

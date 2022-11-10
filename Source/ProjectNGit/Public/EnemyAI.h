@@ -115,7 +115,7 @@ public:
 	void HitEnemy();
 
 	//Function to apply damage to Enemy
-	void Damage(float damageToApply);
+	void Damage(float damageToApply, float pushForce = 1000.0f);
 
 	//Function used to bind to delegate OnSeePawn from UPawnSensingComponent which triggers when seeing a pawn
 	UFUNCTION()
