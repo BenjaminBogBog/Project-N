@@ -9,6 +9,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Navigation/PathFollowingComponent.h"
 #include "AIController.h"
@@ -31,6 +32,13 @@ class PROJECTNGIT_API AEnemyAI : public ACharacter
 public:
 	// Sets default values for this character's properties
 	AEnemyAI();
+
+	//DEBUGGING
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI Settings")
+		FVector actorLocation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI Settings")
+		FVector playerLocation;
 
 	//Pawn Sense Component which senses pawns, mostly used to sense players in this case
 	UPROPERTY(Category = "AI Settings", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))

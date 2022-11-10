@@ -80,7 +80,6 @@ void APlayerChar::Tick(float DeltaTime)
 
 		fallTimer = 0;
 	}
-
 }
 
 // Called to bind functionality to input

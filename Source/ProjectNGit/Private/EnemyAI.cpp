@@ -177,6 +177,11 @@ void AEnemyAI::Damage(float damageToApply)
 	//Call function to start animations and such
 	HitEnemy();
 
+	actorLocation = this->GetActorLocation();
+	playerLocation = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->GetActorLocation();
+	FVector ImpulseDirection = actorLocation - playerLocation;
+	GetCharacterMovement()->Velocity += ImpulseDirection.GetSafeNormal() * 1000.0;
+
 	//Check if enemy is dead
 	if (CurrentHealth <= 0) {
 		
