@@ -9,9 +9,11 @@ AEnemyAI::AEnemyAI()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	//Creating a Pawn Sensing Component to enable sensing
 	pawnSense = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensor"));
 	pawnSense->RegisterComponent();
 
+		//Binds Function to the OnSeePawn delegate
 	pawnSense->OnSeePawn.AddDynamic(this, &AEnemyAI::OnSeePawn);
 }
 
@@ -25,14 +27,11 @@ void AEnemyAI::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("PAWN SENSE: %f"), pawnSense->HearingThreshold);
 	}
 
+	//Setting INIT values
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
-	
 	CurrentHealth = MaxHealth;
-
 	ACharacter* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
-
 	AIController = Cast<AAIController>(GetController());
-
 	currentAIState = EAIState::Patrol;
 	WalkPointIndex = 0;
 	AIController->MoveToActor(WalkPointsActor[WalkPointIndex]);
@@ -44,12 +43,13 @@ void AEnemyAI::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	//Assigns the Player variable to the Only Player Character in the Game, must change if want to implement Online
 	ACharacter* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 
+	//A TimerHandle which holds the timer content
 	FTimerHandle TimerHandle;
 
-	LastSeen = GetWorld()->GetFirstPlayerController()->GetPawn();
-
+	//When AI is Idle, meaning it has reached a WalkPoint, start a timer for 2.0 seconds before continuing its walk path
 	if (AIController->GetMoveStatus() == EPathFollowingStatus::Idle) {
 
 		if (!GetWorld()->GetTimerManager().IsTimerActive(TimerHandle) && !bWalkBoolDebounce) {
@@ -58,6 +58,7 @@ void AEnemyAI::Tick(float DeltaTime)
 		}
 	}
 
+	//Stop AI when the distance is less than **AIStopDistance** meters from the current walkpoint
 	if (FVector::Dist(GetActorLocation(), WalkPointsActor[WalkPointIndex]->GetActorLocation()) <= AIStopDistance) {
 
 		AIController->StopMovement();
@@ -84,11 +85,18 @@ void AEnemyAI::Tick(float DeltaTime)
 		
 	}
 
+	//Adding DeltaTime every tick to make an accurate timer
 	intervalTime += DeltaTime;
 
+
+
+	//AI MOVEMENT
+	
+	//Execute when every sensing interval instead of every tick
+	//This IF holds the content for whether the AI sees the player or not. If it does, it rushes towards the player. If not it goes between walkpoints
 	if (intervalTime >= pawnSense->SensingInterval) {
 
-		if (LastSeen != nullptr && pawnSense != nullptr && currentAIState != EAIState::Attack) {
+		if (LastSeen != nullptr && pawnSense != nullptr && currentAIState != EAIState::Attack && !bRecentlyHit) {
 
 			if (!pawnSense->CouldSeePawn(LastSeen)) {
 				GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Red, TEXT("PATROL"));
@@ -107,10 +115,15 @@ void AEnemyAI::Tick(float DeltaTime)
 			}
 		}
 
+		//Resets time variable once finishes executing
 		intervalTime = 0;
 	}
 
-	if (currentAIState == EAIState::Pushing) {
+	//AI ATTACK
+	
+	//Executes when AI sees players, starts rushing towards player
+	//Once close enough AI will start Attacking
+	if (currentAIState == EAIState::Pushing && !bRecentlyHit) {
 
 		if (FVector::Dist(GetActorLocation(), LastSeen->GetActorLocation()) <= AIStopDistance) {
 			GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Red, TEXT("ATTACK"));
@@ -126,11 +139,20 @@ void AEnemyAI::Tick(float DeltaTime)
 		}
 	}
 
+	//Check if the AI has finished attack animation
 	if (bIsAttacking && GetMesh()->GetAnimInstance()->Montage_GetIsStopped(AttackAnimationMontage)) {
 		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("DONE ATTACK"));
 
 		currentAIState = EAIState::Patrol;
 		bIsAttacking = false;
+	}
+
+	//Check if the AI has finished hit animation
+	if (bRecentlyHit && GetMesh()->GetAnimInstance()->Montage_GetIsStopped(HitAnimationMontage)) {
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("DONE HIT"));
+
+		currentAIState = EAIState::Patrol;
+		bRecentlyHit = false;
 	}
 
 	
@@ -147,29 +169,55 @@ void AEnemyAI::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 }
 
+// Called whenever Enemy takes damage
 void AEnemyAI::ApplyDamage(float damageToApply)
 {
+	//Spawn particles
 	if (BloodSplatterFX != nullptr)
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodSplatterFX, GetActorLocation());
 
+	//Apply the actual damage
 	CurrentHealth -= damageToApply;
 
+	//Call function to start animations and such
+	HitEnemy();
+
+	//Check if enemy is dead
 	if (CurrentHealth <= 0) {
+		
+		//LOGIC for dying
 		Destroy();
 	}
 }
 
+// Delegate called when AISense sees a pawn
 void AEnemyAI::OnSeePawn(APawn* OtherPawn)
 {
-
+	//Assign LastSeen to the referred pawn whenever AI sees player, 
+	//this is used in other parts of the code to check if AI should attack to the player or not
 	if (OtherPawn->ActorHasTag("Player")) {
 		LastSeen = OtherPawn;
 	}
 }
 
+// Invoked with the timer to give delay when reaching walkpoints
 void AEnemyAI::AIMoveDelay() {
 	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("WALK TRUE"));
 	bCanWalk = true;
+}
+
+// Called when Enemy is hit
+void AEnemyAI::HitEnemy() {
+
+	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("HITTING"));
+
+	AIController->StopMovement();
+
+	bRecentlyHit = true;
+
+	//Perform Animation
+	PlayAnimMontage(HitAnimationMontage);
+		
 }
 
 

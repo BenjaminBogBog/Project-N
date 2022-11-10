@@ -55,6 +55,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI Settings")
 	int WalkPointIndex;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI Settings")
+	bool bRecentlyHit;
 	bool bCanWalk;
 	bool bWalkBoolDebounce;
 
@@ -102,6 +104,9 @@ public:
 	float intervalTime;
 
 	AAIController* AIController;
+
+	//Function called when enemy is hit
+	void HitEnemy();
 
 protected:
 	// Called when the game starts or when spawned
