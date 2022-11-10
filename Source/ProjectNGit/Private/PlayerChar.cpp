@@ -174,24 +174,38 @@ void APlayerChar::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 {
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *OtherActor->GetName());
 
-	if (OtherActor->ActorHasTag("Enemy") && GetMesh()->GetAnimInstance()->IsAnyMontagePlaying()) {
+	if (OtherActor->ActorHasTag("Enemy") && bCanApplyDamage) {
 
 		ACharacter* enemyCharacter = Cast<ACharacter>(OtherActor);
 
 		AEnemyAI* enemy = Cast<AEnemyAI>(enemyCharacter);
 
 		if (enemy != nullptr)
-			enemy->ApplyDamage(CurrentDamage);
+			enemy->Damage(CurrentDamage);
+
+		bCanApplyDamage = false;
 	}
 
 }
 
 void APlayerChar::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *OtherActor->GetName());
 
+	if (OtherActor->ActorHasTag("Enemy") && bCanApplyDamage) {
+
+		ACharacter* enemyCharacter = Cast<ACharacter>(OtherActor);
+
+		AEnemyAI* enemy = Cast<AEnemyAI>(enemyCharacter);
+
+		if (enemy != nullptr)
+			enemy->Damage(CurrentDamage);
+
+		bCanApplyDamage = false;
+	}
 }
 
-void APlayerChar::ApplyDamage(float damage) {
+void APlayerChar::Damage(float damage) {
 	CurrentHealth -= damage;
 }
 

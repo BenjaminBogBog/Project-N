@@ -54,9 +54,6 @@ public:
 	int comboProgression; //0 = light, 1 = heavy
 	float fallTimer;
 
-	UPROPERTY(VisibleAnywhere)
-	bool bCanAttack;
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		float AttackRate;
 
@@ -81,6 +78,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Player Stats")
 		float MaxHealth;
 
+	UPROPERTY(VisibleAnywhere)
+		bool bCanAttack;
+
+	bool bCanApplyDamage;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -91,7 +93,7 @@ protected:
 
 	void Attack();
 	
-	void ApplyDamage(float damage);
+	void Damage(float damage);
 
 public:	
 	// Called every frame

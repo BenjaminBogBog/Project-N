@@ -154,11 +154,6 @@ void AEnemyAI::Tick(float DeltaTime)
 		currentAIState = EAIState::Patrol;
 		bRecentlyHit = false;
 	}
-
-	
-
-	
-	
 	
 }
 
@@ -170,7 +165,7 @@ void AEnemyAI::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 }
 
 // Called whenever Enemy takes damage
-void AEnemyAI::ApplyDamage(float damageToApply)
+void AEnemyAI::Damage(float damageToApply)
 {
 	//Spawn particles
 	if (BloodSplatterFX != nullptr)

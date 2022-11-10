@@ -32,40 +32,25 @@ public:
 	// Sets default values for this character's properties
 	AEnemyAI();
 
+	//Pawn Sense Component which senses pawns, mostly used to sense players in this case
 	UPROPERTY(Category = "AI Settings", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	UPawnSensingComponent* pawnSense;
 
-	UFUNCTION()
-		void OnSeePawn(APawn* OtherPawn);
-
-	UFUNCTION()
-		void AIMoveDelay();
-
+	//Particle system for blood splatter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		UNiagaraSystem* BloodSplatterFX;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	//Max Health of the Enemy
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI Settings")
 		float MaxHealth;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	//Current Health of the Enemy, assign to maxHealth on starting the game
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI Settings")
 		float CurrentHealth;
 
-	void ApplyDamage(float damageToApply);
-
+	//The Index of the Walkpoint in the walkpoint Array
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI Settings")
 	int WalkPointIndex;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI Settings")
-	bool bRecentlyHit;
-	bool bCanWalk;
-	bool bWalkBoolDebounce;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI Settings")
-	bool bSeesPlayer;
-
-	//Bool to store if the player is attacking
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI Settings")
-	bool bIsAttacking;
 
 	//An array of Actors acting as walkpoints
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI Settings")
@@ -99,14 +84,38 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI Settings")
 		UAnimMontage* HitAnimationMontage;
 
+	//Bool to store if the Enemy is attacking
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI Settings")
+		bool bIsAttacking;
+
 
 	//AI Check Interval
 	float intervalTime;
 
+	//Bools which keeps track of states
+	bool bRecentlyHit;
+	bool bCanWalk;
+	bool bWalkBoolDebounce;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI Settings")
+		bool bSeesPlayer;
+
+	//A Class assigned in BeginPlay() to reference the AI Controller
 	AAIController* AIController;
 
 	//Function called when enemy is hit
 	void HitEnemy();
+
+	//Function to apply damage to Enemy
+	void Damage(float damageToApply);
+
+	//Function used to bind to delegate OnSeePawn from UPawnSensingComponent which triggers when seeing a pawn
+	UFUNCTION()
+		void OnSeePawn(APawn* OtherPawn);
+
+	//Function called to give delay to walkpoints
+	UFUNCTION()
+		void AIMoveDelay();
 
 protected:
 	// Called when the game starts or when spawned
