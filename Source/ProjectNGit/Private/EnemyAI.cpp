@@ -84,8 +84,6 @@ void AEnemyAI::Tick(float DeltaTime)
 		
 	}
 
-
-
 	intervalTime += DeltaTime;
 
 	if (intervalTime >= pawnSense->SensingInterval) {
@@ -121,7 +119,18 @@ void AEnemyAI::Tick(float DeltaTime)
 
 			currentAIState = EAIState::Attack;
 
+			bIsAttacking = true;
+
+			//Perform Animation
+			PlayAnimMontage(AttackAnimationMontage);
 		}
+	}
+
+	if (bIsAttacking && GetMesh()->GetAnimInstance()->Montage_GetIsStopped(AttackAnimationMontage)) {
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("DONE ATTACK"));
+
+		currentAIState = EAIState::Patrol;
+		bIsAttacking = false;
 	}
 
 	

@@ -61,23 +61,41 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI Settings")
 	bool bSeesPlayer;
 
+	//Bool to store if the player is attacking
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI Settings")
+	bool bIsAttacking;
+
+	//An array of Actors acting as walkpoints
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI Settings")
 		TArray<AActor*> WalkPointsActor;
 
+	//The distance to the target before stopping
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI Settings")
 		float AIStopDistance;
 
+	//Stores an enum of the Current AI State
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI Settings")
 		EAIState currentAIState;
 
+	//The APawn of the last seen player
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI Settings")
 	APawn* LastSeen;
 
+	//Speed while walking/patrolling
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI Settings")
 		float WalkSpeed;
 
+	//Speed while running
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI Settings")
 		float SprintSpeed;
+
+	//Animation Montage of the Enemy attack
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI Settings")
+		UAnimMontage* AttackAnimationMontage;
+
+	//Animation Montage of the Enemy getting hit
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI Settings")
+		UAnimMontage* HitAnimationMontage;
 
 
 	//AI Check Interval
