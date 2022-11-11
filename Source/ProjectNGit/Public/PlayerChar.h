@@ -5,8 +5,6 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 
-#include "EnemyAI.h"
-
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -32,12 +30,17 @@ public:
 	// Sets default values for this character's properties
 	APlayerChar();
 
+	//Particle system for blood splatter
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		UNiagaraSystem* BloodSplatterFX;
+
 	UFUNCTION()
 		void OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION()
 		void OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+	void AttackOnOverlap(AActor* OtherActor);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 		USpringArmComponent* CameraBoom;
@@ -56,20 +59,23 @@ public:
 	int comboProgression; //0 = light, 1 = heavy
 	float fallTimer;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Player Settings")
 		float AttackRate;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Player Settings")
 		float WalkSpeed;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Player Settings")
 		float SprintSpeed;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Player Settings")
 		UAnimMontage* attackLightAnim;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Player Settings")
 		UAnimMontage* attackHeavyAnim;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Player Settings")
+		UAnimMontage* HitAnim;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Player Stats")
 		float CurrentDamage;
@@ -83,6 +89,7 @@ public:
 	UPROPERTY(VisibleAnywhere)
 		bool bCanAttack;
 
+	bool bRecentlyHit;
 	bool bCanApplyDamage;
 
 protected:
@@ -94,8 +101,6 @@ protected:
 	void StopSprint();
 
 	void Attack();
-	
-	void Damage(float damage);
 
 public:	
 	// Called every frame
@@ -103,5 +108,9 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	void PlayerHit();
+
+	void Damage(float damage, AActor* OtherActor, float pushForce = 1000.0f);
 
 };

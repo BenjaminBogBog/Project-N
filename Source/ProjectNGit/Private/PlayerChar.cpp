@@ -2,7 +2,7 @@
 
 
 #include "PlayerChar.h"
-
+#include "EnemyAI.h"
 
 // Sets default values
 APlayerChar::APlayerChar()
@@ -75,6 +75,7 @@ void APlayerChar::Tick(float DeltaTime)
 		if (fallTimer >= 1.75f) {
 			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, TEXT("DIE FROM FALL DAMAGE"));
 
+			//Die
 			SetActorLocation(CheckPoint);
 		}
 
@@ -171,26 +172,17 @@ void APlayerChar::Attack() {
 
 void APlayerChar::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *OtherActor->GetName());
-
-	if (OtherActor->ActorHasTag("Enemy") && bCanApplyDamage) {
-
-		ACharacter* enemyCharacter = Cast<ACharacter>(OtherActor);
-
-		AEnemyAI* enemy = Cast<AEnemyAI>(enemyCharacter);
-
-		if (enemy != nullptr)
-			enemy->Damage(CurrentDamage);
-
-		bCanApplyDamage = false;
-	}
+	AttackOnOverlap(OtherActor);
 
 }
 
 void APlayerChar::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *OtherActor->GetName());
+	AttackOnOverlap(OtherActor);
+}
 
+void APlayerChar::AttackOnOverlap(AActor* OtherActor)
+{
 	if (OtherActor->ActorHasTag("Enemy") && bCanApplyDamage) {
 
 		ACharacter* enemyCharacter = Cast<ACharacter>(OtherActor);
@@ -204,7 +196,41 @@ void APlayerChar::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor*
 	}
 }
 
-void APlayerChar::Damage(float damage) {
+void APlayerChar::Damage(float damage, AActor* OtherActor, float pushForce) {
+	//Spawn particles
+	if (BloodSplatterFX != nullptr)
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodSplatterFX, GetActorLocation());
+
+	//Apply the actual damage
 	CurrentHealth -= damage;
+
+	//Call function to start animations and such
+	PlayerHit();
+
+	FVector actorLocation = this->GetActorLocation();
+	FVector playerLocation = OtherActor->GetActorLocation();
+	FVector ImpulseDirection = actorLocation - playerLocation;
+	GetCharacterMovement()->Velocity += ImpulseDirection.GetSafeNormal() * pushForce;
+
+	//Check if enemy is dead
+	if (CurrentHealth <= 0) {
+
+		//LOGIC for dying
+		GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, TEXT("U DEAD MAN"));
+
+		Destroy();
+	}
+}
+
+void APlayerChar::PlayerHit() {
+	bRecentlyHit = true;
+
+	if (GetMesh()->GetAnimInstance()->Montage_IsPlaying(attackHeavyAnim) || GetMesh()->GetAnimInstance()->Montage_IsPlaying(attackLightAnim)) {
+		GetMesh()->GetAnimInstance()->StopAllMontages(0.1f);
+		bCanApplyDamage = false;
+	}
+
+	//Perform Animation
+	PlayAnimMontage(HitAnim);
 }
 

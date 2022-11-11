@@ -5,8 +5,10 @@
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotifyState.h"
 #include "Kismet/GameplayStatics.h"
-#include "PlayerChar.h"
 #include "PlayerAttack_AnimNotifyState.generated.h"
+
+class AEnemyAI;
+class APlayerChar;
 
 /**
  * 
@@ -19,6 +21,7 @@ class PROJECTNGIT_API UPlayerAttack_AnimNotifyState : public UAnimNotifyState
 public:
 	AActor* actor;
 	APlayerChar* player;
+	AEnemyAI* enemy;
 
 protected:
 	virtual void NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference) override;

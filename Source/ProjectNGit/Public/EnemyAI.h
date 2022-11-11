@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 
+#include "PlayerChar.h"
+
 #include "Perception/PawnSensingComponent.h"
 #include "GameFramework/GameModeBase.h"
 #include "Kismet/GameplayStatics.h"
@@ -33,13 +35,6 @@ class PROJECTNGIT_API AEnemyAI : public ACharacter
 public:
 	// Sets default values for this character's properties
 	AEnemyAI();
-
-	//DEBUGGING
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI Settings")
-		FVector actorLocation;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI Settings")
-		FVector playerLocation;
 
 	//Pawn Sense Component which senses pawns, mostly used to sense players in this case
 	UPROPERTY(Category = "AI Settings", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
@@ -101,11 +96,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI Settings")
 		float AIDamage;
 
-
 	//AI Check Interval
 	float intervalTime;
 
 	//Bools which keeps track of states
+	bool bCanApplyDamage;
 	bool bRecentlyHit;
 	bool bCanWalk;
 	bool bWalkBoolDebounce;
@@ -130,11 +125,15 @@ public:
 	UFUNCTION()
 		void AIMoveDelay();
 
+	//Begin Overlap Function which binds to the delegate
 	UFUNCTION()
 		void OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+	//End Overlap Function which binds to the delegate
 	UFUNCTION()
 		void OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	void AttackOnOverlap(AActor* OtherActor);
 
 protected:
 	// Called when the game starts or when spawned

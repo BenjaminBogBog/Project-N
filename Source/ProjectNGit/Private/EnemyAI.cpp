@@ -12,9 +12,6 @@ AEnemyAI::AEnemyAI()
 	//Creating a Pawn Sensing Component to enable sensing
 	pawnSense = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensor"));
 	pawnSense->RegisterComponent();
-
-		//Binds Function to the OnSeePawn delegate
-	pawnSense->OnSeePawn.AddDynamic(this, &AEnemyAI::OnSeePawn);
 }
 
 // Called when the game starts or when spawned
@@ -25,14 +22,19 @@ void AEnemyAI::BeginPlay()
 	if (pawnSense != nullptr) {
 		pawnSense->bHearNoises = false;
 		UE_LOG(LogTemp, Warning, TEXT("PAWN SENSE: %f"), pawnSense->HearingThreshold);
+
+		//Binds Function to the OnSeePawn delegate
+		pawnSense->OnSeePawn.AddDynamic(this, &AEnemyAI::OnSeePawn);
 	}
 
 	//Finding HitBoxComponent and Binding a Function to the OnBeginOverlap
 	USceneComponent* hitboxComp = GetMesh()->GetChildComponent(0);
 	UBoxComponent* hitbox = Cast<UBoxComponent>(hitboxComp);
 
-	if (hitbox != nullptr)
+	if (hitbox != nullptr) {
 		hitbox->OnComponentBeginOverlap.AddDynamic(this, &AEnemyAI::OnBeginOverlap);
+		hitbox->OnComponentEndOverlap.AddDynamic(this, &AEnemyAI::OnEndOverlap);
+	}
 	else
 		UE_LOG(LogTemp, Warning, TEXT("Can't find box Component"));
 
@@ -196,8 +198,8 @@ void AEnemyAI::Damage(float damageToApply, float pushForce)
 	//Call function to start animations and such
 	HitEnemy();
 
-	actorLocation = this->GetActorLocation();
-	playerLocation = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->GetActorLocation();
+	FVector actorLocation = this->GetActorLocation();
+	FVector playerLocation = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->GetActorLocation();
 	FVector ImpulseDirection = actorLocation - playerLocation;
 	GetCharacterMovement()->Velocity += ImpulseDirection.GetSafeNormal() * pushForce;
 
@@ -217,13 +219,24 @@ void AEnemyAI::AIMoveDelay() {
 
 void AEnemyAI::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor->ActorHasTag("Player")) {
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("DAMAGE PLAYER"));
-	}
+	AttackOnOverlap(OtherActor);
 }
 
 void AEnemyAI::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
+	AttackOnOverlap(OtherActor);
+}
+
+void AEnemyAI::AttackOnOverlap(AActor* OtherActor)
+{
+	if (OtherActor->ActorHasTag("Player") && bCanApplyDamage) {
+		ACharacter* playerChar = Cast<ACharacter>(OtherActor);
+
+		APlayerChar* player = Cast<APlayerChar>(playerChar);
+
+		if (player != nullptr)
+			player->Damage(AIDamage, GetOwner(), 5000.0f);
+	}
 }
 
 // Called when Enemy is hit
