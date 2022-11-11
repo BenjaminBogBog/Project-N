@@ -234,8 +234,11 @@ void AEnemyAI::AttackOnOverlap(AActor* OtherActor)
 
 		APlayerChar* player = Cast<APlayerChar>(playerChar);
 
-		if (player != nullptr)
-			player->Damage(AIDamage, GetOwner(), 5000.0f);
+		if (player != nullptr) {
+			if(!player->bRecentlyHit)
+				player->Damage(AIDamage, GetOwner(), 3000.0f);
+		}
+			
 	}
 }
 

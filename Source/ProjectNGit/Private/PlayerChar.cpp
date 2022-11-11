@@ -81,6 +81,13 @@ void APlayerChar::Tick(float DeltaTime)
 
 		fallTimer = 0;
 	}
+
+	//Check if the Player has finished hit animation
+	if (bRecentlyHit && GetMesh()->GetAnimInstance()->Montage_GetIsStopped(HitAnim)) {
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("DONE HIT"));
+
+		bRecentlyHit = false;
+	}
 }
 
 // Called to bind functionality to input
@@ -189,8 +196,11 @@ void APlayerChar::AttackOnOverlap(AActor* OtherActor)
 
 		AEnemyAI* enemy = Cast<AEnemyAI>(enemyCharacter);
 
-		if (enemy != nullptr)
-			enemy->Damage(CurrentDamage);
+		if (enemy != nullptr) {
+			if(!enemy->bRecentlyHit)
+				enemy->Damage(CurrentDamage);
+		}
+			
 
 		bCanApplyDamage = false;
 	}
