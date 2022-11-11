@@ -21,6 +21,8 @@
 
 #include "PlayerChar.generated.h"
 
+class AEnemyAI;
+
 UCLASS()
 class PROJECTNGIT_API APlayerChar : public ACharacter
 {

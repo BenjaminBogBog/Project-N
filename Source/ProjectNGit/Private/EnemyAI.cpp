@@ -27,6 +27,15 @@ void AEnemyAI::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("PAWN SENSE: %f"), pawnSense->HearingThreshold);
 	}
 
+	//Finding HitBoxComponent and Binding a Function to the OnBeginOverlap
+	USceneComponent* hitboxComp = GetMesh()->GetChildComponent(0);
+	UBoxComponent* hitbox = Cast<UBoxComponent>(hitboxComp);
+
+	if (hitbox != nullptr)
+		hitbox->OnComponentBeginOverlap.AddDynamic(this, &AEnemyAI::OnBeginOverlap);
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Can't find box Component"));
+
 	//Setting INIT values
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 	CurrentHealth = MaxHealth;
@@ -204,6 +213,17 @@ void AEnemyAI::Damage(float damageToApply, float pushForce)
 void AEnemyAI::AIMoveDelay() {
 	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("WALK TRUE"));
 	bCanWalk = true;
+}
+
+void AEnemyAI::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor->ActorHasTag("Player")) {
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("DAMAGE PLAYER"));
+	}
+}
+
+void AEnemyAI::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
 }
 
 // Called when Enemy is hit

@@ -10,6 +10,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/BoxComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Navigation/PathFollowingComponent.h"
 #include "AIController.h"
@@ -96,6 +97,10 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI Settings")
 		bool bIsAttacking;
 
+	//Bool to store if the Enemy is attacking
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI Settings")
+		float AIDamage;
+
 
 	//AI Check Interval
 	float intervalTime;
@@ -124,6 +129,12 @@ public:
 	//Function called to give delay to walkpoints
 	UFUNCTION()
 		void AIMoveDelay();
+
+	UFUNCTION()
+		void OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+		void OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 protected:
 	// Called when the game starts or when spawned
