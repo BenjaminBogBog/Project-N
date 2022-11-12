@@ -3,6 +3,7 @@
 
 #include "PlayerChar.h"
 #include "EnemyAI.h"
+#include "BuildComponent.h"
 
 // Sets default values
 APlayerChar::APlayerChar()
@@ -15,7 +16,6 @@ APlayerChar::APlayerChar()
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationYaw = false;
-
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
@@ -34,8 +34,10 @@ APlayerChar::APlayerChar()
 	FollowCamera->SetFieldOfView(90.0);
 	FollowCamera->bUsePawnControlRotation = false;
 
-	bDead = false;
+	BuildComponent = CreateDefaultSubobject<UBuildComponent>(TEXT("BuildComponent"));
+	BuildComponent->RegisterComponent();
 
+	bDead = false;
 }
 
 // Called when the game starts or when spawned
@@ -64,7 +66,7 @@ void APlayerChar::Tick(float DeltaTime)
 	}
 
 	if (GetCharacterMovement()->IsMovingOnGround()) {
-		if (fallTimer >= 3.0f) {
+		if (fallTimer >= 2.0f) {
 			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, TEXT("DIE FROM FALL DAMAGE"));
 
 			//Die
@@ -247,9 +249,6 @@ void APlayerChar::AttackOnOverlap(AActor* OtherActor)
 			if(!enemy->bRecentlyHit)
 				enemy->Damage(CurrentDamage);
 		}
-			
-
-		bCanApplyDamage = false;
 	}
 }
 
