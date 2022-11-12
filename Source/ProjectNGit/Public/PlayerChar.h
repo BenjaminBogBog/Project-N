@@ -16,6 +16,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Math/TransformNonVectorized.h"
 #include "Kismet/GameplayStatics.h"
+#include "ProjectNGameInstance.h"
 
 #include "PlayerChar.generated.h"
 
@@ -92,6 +93,12 @@ public:
 	bool bRecentlyHit;
 	bool bCanApplyDamage;
 
+	int weaponIndex;
+	//DEBUG
+
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"), Category = "Game Settings")
+	TSubclassOf<AActor> weaponBlueprint;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -101,6 +108,7 @@ protected:
 	void StopSprint();
 
 	void Attack();
+	void SwitchWeapon();
 
 public:	
 	// Called every frame

@@ -108,6 +108,7 @@ void APlayerChar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAction(TEXT("Sprint"), IE_Released, this, &APlayerChar::StopSprint);
 
 	PlayerInputComponent->BindAction(TEXT("Attack"), IE_Pressed, this, &APlayerChar::Attack);
+	PlayerInputComponent->BindAction(TEXT("DEBUG_SwitchWeapon"), IE_Pressed, this, &APlayerChar::SwitchWeapon);
 
 }
 
@@ -174,6 +175,36 @@ void APlayerChar::Attack() {
 	}
 		
 
+	
+}
+
+void APlayerChar::SwitchWeapon()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("SWITCHING WEAPON..."));
+	UProjectNGameInstance* gameInstance = Cast<UProjectNGameInstance>(GetWorld()->GetGameInstance());
+
+	if (gameInstance != nullptr) {
+
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("SPAWNING WEAPON..."));
+
+		if (weaponBlueprint != nullptr) {
+			
+			AActor* weapon = GetWorld()->SpawnActor<AActor>(weaponBlueprint, FVector(0,0,0), FRotator(0, 0, 0));
+
+			if (weapon != nullptr) {
+				weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("RightHand"));
+				weapon->SetActorRelativeLocation(FVector(6, -23, 10));
+				weapon->SetActorRelativeRotation(FQuat(FRotator(0, 90, -90)));
+			}
+				
+		}
+		else {
+			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("WEAPON BLUEPRINT NOT FOUND"));
+		}
+	}
+	else {
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("GAME INSTANCE NOT FOUND."));
+	}
 	
 }
 
