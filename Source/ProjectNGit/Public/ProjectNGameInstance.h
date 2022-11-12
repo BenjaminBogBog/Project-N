@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+#include "WeaponClass.h"
 #include "Components/StaticMeshComponent.h"
 #include "ProjectNGameInstance.generated.h"
 
@@ -20,6 +21,6 @@ public:
 		TArray<FString> WeaponNames;
 
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"), Category = "Game Settings")
-		TMap<FString, TSubclassOf<AActor>> WeaponBlueprints;
+		TMap<FString, TSubclassOf<AWeaponClass>> WeaponBlueprints;
 	
 };

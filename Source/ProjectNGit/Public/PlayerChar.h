@@ -87,6 +87,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Player Stats")
 		float MaxHealth;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player States")
+		AWeaponClass* equippedWeapon;
+
 	UPROPERTY(VisibleAnywhere)
 		bool bCanAttack;
 
@@ -94,10 +97,6 @@ public:
 	bool bCanApplyDamage;
 
 	int weaponIndex;
-	//DEBUG
-
-	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"), Category = "Game Settings")
-	TSubclassOf<AActor> weaponBlueprint;
 
 protected:
 	// Called when the game starts or when spawned

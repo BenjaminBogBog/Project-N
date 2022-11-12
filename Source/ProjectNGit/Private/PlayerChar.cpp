@@ -43,14 +43,6 @@ void APlayerChar::BeginPlay()
 {
 	Super::BeginPlay();
 
-	USceneComponent* hitboxComp = GetMesh()->GetChildComponent(0);
-	UBoxComponent* hitbox = Cast<UBoxComponent>(hitboxComp);
-
-	if (hitbox != nullptr)
-		hitbox->OnComponentBeginOverlap.AddDynamic(this, &APlayerChar::OnBeginOverlap);
-	else
-		UE_LOG(LogTemp, Warning, TEXT("Can't find box Component"));
-
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 
 	bCanAttack = true;
@@ -72,7 +64,7 @@ void APlayerChar::Tick(float DeltaTime)
 	}
 
 	if (GetCharacterMovement()->IsMovingOnGround()) {
-		if (fallTimer >= 1.75f) {
+		if (fallTimer >= 3.0f) {
 			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, TEXT("DIE FROM FALL DAMAGE"));
 
 			//Die
@@ -185,16 +177,40 @@ void APlayerChar::SwitchWeapon()
 
 	if (gameInstance != nullptr) {
 
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("SPAWNING WEAPON..."));
+		FString Name = gameInstance->WeaponNames[weaponIndex];
+		AWeaponClass* weapon = GetWorld()->SpawnActor<AWeaponClass>(gameInstance->WeaponBlueprints[Name], FVector(0, 0, 0), FRotator(0, 0, 0));
 
-		if (weaponBlueprint != nullptr) {
-			
-			AActor* weapon = GetWorld()->SpawnActor<AActor>(weaponBlueprint, FVector(0,0,0), FRotator(0, 0, 0));
+		if (equippedWeapon != nullptr) {
+			equippedWeapon->Destroy();
+		}
 
-			if (weapon != nullptr) {
-				weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("RightHand"));
-				weapon->SetActorRelativeLocation(FVector(6, -23, 10));
-				weapon->SetActorRelativeRotation(FQuat(FRotator(0, 90, -90)));
+		if (weapon != nullptr) {
+
+			weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("RightHand"));
+			weapon->SetActorRelativeTransform(weapon->WeaponTransform);
+
+			CurrentDamage = weapon->WeaponDamage;
+
+			UBoxComponent* weaponHitbox = weapon->FindComponentByClass<UBoxComponent>();
+
+			if (weaponHitbox != nullptr) {
+				weaponHitbox->OnComponentBeginOverlap.AddDynamic(this, &APlayerChar::OnBeginOverlap);
+				weaponHitbox->OnComponentEndOverlap.AddDynamic(this, &APlayerChar::OnEndOverlap);
+			}
+			else {
+				GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("WEAPON HITBOX NOT FOUND"));
+			}
+
+			equippedWeapon = weapon;
+
+			/*weapon->SetActorRelativeLocation(FVector(6, -23, 10));
+			weapon->SetActorRelativeRotation(FQuat(FRotator(0, 90, -90)));*/
+
+			//Iterate weaponIndex once successful
+			weaponIndex++;
+
+			if (weaponIndex >= gameInstance->WeaponNames.Num()) {
+				weaponIndex = 0;
 			}
 				
 		}
