@@ -127,6 +127,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Build Settings")
 	UBuildComponent* BuildComponent;
 
+	void DestroyComponent();
+
 #pragma endregion
 
 
@@ -140,6 +142,7 @@ protected:
 
 	void Attack();
 	void SwitchWeapon();
+	void StartBuilding();
 
 public:	
 	// Called every frame

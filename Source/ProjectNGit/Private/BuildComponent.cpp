@@ -42,35 +42,60 @@ void UBuildComponent::SpawnBuildGhost()
 {
 	BuildGhost = Cast<UStaticMeshComponent>(GetOwner()->AddComponentByClass(TSubclassOf<UStaticMeshComponent>(), false, BuildTransform, false));
 
-	BuildGhost->SetStaticMesh(MeshToBuild);
-	BuildGhost->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	if (BuildGhost != nullptr) {
+		BuildGhost->SetStaticMesh(MeshToBuild);
+		BuildGhost->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+	else {
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("BUILD GHOST DOESNT EXIST"));
+	}
+	
 
 }
 
-void UBuildComponent::GiveBuildColor(bool isGreen)
+void UBuildComponent::GiveBuildColor()
 {
-	int NumMaterials = BuildGhost->GetNumMaterials();
+	if (BuildGhost != nullptr) {
+		int NumMaterials = BuildGhost->GetNumMaterials();
 
-	isGreen = CanBuild;
+		for (int i = 0; i < NumMaterials; i++) {
+			if (CanBuild) {
+				BuildGhost->SetMaterial(i, GreenColor);
+			}
+			else {
+				BuildGhost->SetMaterial(i, RedColor);
+			}
+		}
 
-	for (int i = 0; i < NumMaterials; i++) {
-		if (isGreen) {
-			BuildGhost->SetMaterial(i, GreenColor);
-		}
-		else {
-			BuildGhost->SetMaterial(i, RedColor);
-		}
+		BuildGhost->SetWorldTransform(BuildTransform);
 	}
-
-	BuildGhost->SetWorldTransform(BuildTransform);
+	else {
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("BUILD GHOST DOESNT EXIST"));
+	}
+	
 
 }
 
 void UBuildComponent::BuildCycle()
 {
+	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("START BUILD CYCLE"));
 	FVector TraceStart = Camera->GetComponentLocation() + Camera->GetForwardVector() * 350;
 	FVector TraceEnd = Camera->GetComponentLocation() + Camera->GetForwardVector() * 1000;
 
+	FHitResult hit;
+	GetWorld()->LineTraceSingleByChannel(hit, TraceStart, TraceEnd, ECollisionChannel::ECC_Visibility);
 
+	if (GetWorld()->LineTraceSingleByChannel(hit, TraceStart, TraceEnd, ECollisionChannel::ECC_Visibility)) {
+
+		BuildTransform.SetLocation(hit.Location);
+		CanBuild = true;
+	}
+	else {
+		BuildTransform.SetLocation(hit.TraceEnd);
+		CanBuild = false;
+	}
+
+	SpawnBuildGhost();
+	GiveBuildColor();
 }
 

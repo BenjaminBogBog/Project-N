@@ -104,6 +104,8 @@ void APlayerChar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAction(TEXT("Attack"), IE_Pressed, this, &APlayerChar::Attack);
 	PlayerInputComponent->BindAction(TEXT("DEBUG_SwitchWeapon"), IE_Pressed, this, &APlayerChar::SwitchWeapon);
 
+	PlayerInputComponent->BindAction(TEXT("StartBuild"), IE_Pressed, this, &APlayerChar::StartBuilding);
+
 }
 
 void APlayerChar::MoveForward(float Axis)
@@ -224,6 +226,28 @@ void APlayerChar::SwitchWeapon()
 		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("GAME INSTANCE NOT FOUND."));
 	}
 	
+}
+
+void APlayerChar::StartBuilding()
+{
+	BuildComponent->IsBuildModeOn = !BuildComponent->IsBuildModeOn;
+
+	if (BuildComponent->IsBuildModeOn) {
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("START BUILDING"));
+
+		BuildComponent->BuildCycle();
+	}
+	else {
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("STOP BUILDING"));
+
+		DestroyComponent();
+	}
+
+}
+
+void APlayerChar::DestroyComponent()
+{
+	BuildComponent->BuildGhost->DestroyComponent();
 }
 
 void APlayerChar::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

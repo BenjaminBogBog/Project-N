@@ -37,7 +37,7 @@ public:
 
 
 	void SpawnBuildGhost();
-	void GiveBuildColor(bool isGreen);
+	void GiveBuildColor();
 	void BuildCycle();
 
 protected:
