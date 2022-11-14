@@ -19,6 +19,7 @@ void UBuildComponent::BeginPlay()
 	Super::BeginPlay();
 
 	PlayerRef = Cast<APlayerChar>(GetOwner());
+	BuildGhost = PlayerRef->BuildPreviewMesh;
 
 	if (PlayerRef != nullptr)
 		Camera = PlayerRef->FollowCamera;
@@ -40,9 +41,10 @@ void UBuildComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 
 void UBuildComponent::SpawnBuildGhost()
 {
-	BuildGhost = Cast<UStaticMeshComponent>(GetOwner()->AddComponentByClass(TSubclassOf<UStaticMeshComponent>(), false, BuildTransform, false));
+	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Orange, TEXT("BUILDING STATIC MESH"));
 
 	if (BuildGhost != nullptr) {
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("SETTING MESH"));
 		BuildGhost->SetStaticMesh(MeshToBuild);
 		BuildGhost->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
@@ -56,6 +58,7 @@ void UBuildComponent::SpawnBuildGhost()
 void UBuildComponent::GiveBuildColor()
 {
 	if (BuildGhost != nullptr) {
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Orange, TEXT("GIVING BUILD COLOR"));
 		int NumMaterials = BuildGhost->GetNumMaterials();
 
 		for (int i = 0; i < NumMaterials; i++) {

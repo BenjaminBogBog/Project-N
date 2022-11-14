@@ -37,6 +37,9 @@ APlayerChar::APlayerChar()
 	BuildComponent = CreateDefaultSubobject<UBuildComponent>(TEXT("BuildComponent"));
 	BuildComponent->RegisterComponent();
 
+	BuildPreviewMesh = CreateDefaultSubobject<UStaticMeshComponent>("BuildPreviewMesh");
+	BuildPreviewMesh->RegisterComponent();
+
 	bDead = false;
 }
 
@@ -247,7 +250,7 @@ void APlayerChar::StartBuilding()
 
 void APlayerChar::DestroyComponent()
 {
-	BuildComponent->BuildGhost->DestroyComponent();
+	BuildComponent->BuildGhost->SetStaticMesh(nullptr);
 }
 
 void APlayerChar::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

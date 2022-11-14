@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "PlayerChar.h"
 #include "BuildComponent.generated.h"
 
@@ -21,7 +22,9 @@ public:
 	bool IsBuildModeOn;
 	bool CanBuild;
 
-	UStaticMeshComponent* BuildGhost;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Build Settings")
+		UStaticMeshComponent* BuildGhost;
+
 	FTransform BuildTransform;
 	UCameraComponent* Camera;
 	APlayerChar* PlayerRef;

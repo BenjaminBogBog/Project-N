@@ -127,6 +127,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Build Settings")
 	UBuildComponent* BuildComponent;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Build Settings")
+		UStaticMeshComponent* BuildPreviewMesh;
+
 	void DestroyComponent();
 
 #pragma endregion
