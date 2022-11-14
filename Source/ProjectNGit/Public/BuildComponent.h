@@ -26,6 +26,8 @@ public:
 		UStaticMeshComponent* BuildGhost;
 
 	FTransform BuildTransform;
+	FVector SpawnLocation;
+	FQuat4d SpawnRotation;
 	UCameraComponent* Camera;
 	APlayerChar* PlayerRef;
 

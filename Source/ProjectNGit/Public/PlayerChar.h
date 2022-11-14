@@ -140,6 +140,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Build Settings")
 		UStaticMeshComponent* BuildPreviewMesh;
 
+	float buildRate;
+
 	void DestroyComponent();
 	void StartBuilding();
 

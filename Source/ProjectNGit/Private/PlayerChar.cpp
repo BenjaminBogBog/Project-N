@@ -174,7 +174,21 @@ void APlayerChar::Attack() {
 
 		bCanAttack = false;
 	}
+
+	if (CurrentPlayerState == EPlayerState::Building) {
+
+		UProjectNGameInstance* gameInstance = Cast<UProjectNGameInstance>(GetWorld()->GetGameInstance());
+
+		if (gameInstance != nullptr) {
+			AWeaponClass* weaponSpawned = GetWorld()->SpawnActor<AWeaponClass>(gameInstance->WeaponBlueprints["Axe"], FVector(0, 0, 0), FRotator(0, 0, 0));
+			weaponSpawned->SetActorLocationAndRotation(BuildComponent->BuildTransform.GetLocation() + FVector::UpVector * 175, BuildComponent->BuildTransform.GetRotation());
+
+		}
 		
+
+
+	}
+	
 
 	
 }
