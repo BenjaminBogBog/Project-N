@@ -107,7 +107,7 @@ void APlayerChar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAction(TEXT("Attack"), IE_Pressed, this, &APlayerChar::Attack);
 	PlayerInputComponent->BindAction(TEXT("DEBUG_SwitchWeapon"), IE_Pressed, this, &APlayerChar::SwitchWeapon);
 
-	PlayerInputComponent->BindAction(TEXT("StartBuild"), IE_Pressed, this, &APlayerChar::StartBuilding);
+	PlayerInputComponent->BindAction(TEXT("StartBuild"), IE_Pressed, this, &APlayerChar::StartLoop);
 
 }
 
@@ -231,20 +231,29 @@ void APlayerChar::SwitchWeapon()
 	
 }
 
-void APlayerChar::StartBuilding()
+void APlayerChar::StartLoop()
 {
 	BuildComponent->IsBuildModeOn = !BuildComponent->IsBuildModeOn;
 
-	if (BuildComponent->IsBuildModeOn) {
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("START BUILDING"));
+	FTimerHandle TimeHandle;
 
-		BuildComponent->BuildCycle();
+	if (BuildComponent->IsBuildModeOn) {
+
+		GetWorldTimerManager().SetTimer(TimeHandle, this, &APlayerChar::StartBuilding, 0.1f, true, 0.1f);
+			
 	}
 	else {
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("STOP BUILDING"));
-
+		UE_LOG(LogTemp, Warning, TEXT("STOP BUILDING TIMER"));
+		GetWorldTimerManager().PauseTimer(TimeHandle);
 		DestroyComponent();
 	}
+	
+}
+
+void APlayerChar::StartBuilding()
+{
+	if (BuildComponent->IsBuildModeOn)
+		BuildComponent->BuildCycle();
 
 }
 

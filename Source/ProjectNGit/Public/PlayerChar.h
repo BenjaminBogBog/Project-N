@@ -131,6 +131,7 @@ public:
 		UStaticMeshComponent* BuildPreviewMesh;
 
 	void DestroyComponent();
+	void StartBuilding();
 
 #pragma endregion
 
@@ -145,7 +146,7 @@ protected:
 
 	void Attack();
 	void SwitchWeapon();
-	void StartBuilding();
+	void StartLoop();
 
 public:	
 	// Called every frame
