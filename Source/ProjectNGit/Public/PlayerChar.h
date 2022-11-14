@@ -23,6 +23,13 @@
 class AEnemyAI;
 class UBuildComponent;
 
+UENUM(BlueprintType)
+enum class EPlayerState : uint8 {
+	Friendly UMETA(DisplayName = "Friendly"),
+	Combat UMETA(DisplayName = "Combat"),
+	Building UMETA(DisplayName = "Building")
+};
+
 UCLASS()
 class PROJECTNGIT_API APlayerChar : public ACharacter
 {
@@ -31,6 +38,9 @@ class PROJECTNGIT_API APlayerChar : public ACharacter
 public:
 	// Sets default values for this character's properties
 	APlayerChar();
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Player Settings")
+	EPlayerState CurrentPlayerState;
 
 #pragma region Movement and Combat
 	//Particle system for blood splatter

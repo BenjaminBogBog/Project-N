@@ -56,6 +56,8 @@ void APlayerChar::BeginPlay()
 	
 
 	CheckPoint = GetActorLocation();
+
+	CurrentPlayerState = EPlayerState::Friendly;
 	
 }
 
@@ -151,7 +153,7 @@ void APlayerChar::StopSprint() {
 
 void APlayerChar::Attack() {
 
-	if (bCanAttack && !GetMesh()->GetAnimInstance()->IsAnyMontagePlaying()) {
+	if (bCanAttack && !GetMesh()->GetAnimInstance()->IsAnyMontagePlaying() && CurrentPlayerState == EPlayerState::Combat) {
 
 		switch (comboProgression) {
 		case 0:
@@ -219,6 +221,8 @@ void APlayerChar::SwitchWeapon()
 			if (weaponIndex >= gameInstance->WeaponNames.Num()) {
 				weaponIndex = 0;
 			}
+
+			CurrentPlayerState = EPlayerState::Combat;
 				
 		}
 		else {
@@ -240,12 +244,16 @@ void APlayerChar::StartLoop()
 	if (BuildComponent->IsBuildModeOn) {
 
 		GetWorldTimerManager().SetTimer(TimeHandle, this, &APlayerChar::StartBuilding, 0.1f, true, 0.1f);
+
+		CurrentPlayerState = EPlayerState::Building;
 			
 	}
 	else {
 		UE_LOG(LogTemp, Warning, TEXT("STOP BUILDING TIMER"));
 		GetWorldTimerManager().PauseTimer(TimeHandle);
 		DestroyComponent();
+
+		CurrentPlayerState = EPlayerState::Friendly;
 	}
 	
 }
