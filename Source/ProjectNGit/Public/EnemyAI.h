@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 
 #include "PlayerChar.h"
+#include "ProjectNGameMode.h"
 
 #include "Perception/PawnSensingComponent.h"
 #include "GameFramework/GameModeBase.h"
@@ -36,6 +37,8 @@ public:
 	// Sets default values for this character's properties
 	AEnemyAI();
 
+	AProjectNGameMode* CurrentGameMode;
+
 	//Pawn Sense Component which senses pawns, mostly used to sense players in this case
 	UPROPERTY(Category = "AI Settings", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	UPawnSensingComponent* pawnSense;
@@ -57,8 +60,8 @@ public:
 	int WalkPointIndex;
 
 	//An array of Actors acting as walkpoints
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI Settings")
-		TArray<AActor*> WalkPointsActor;
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI Settings")
+		//TArray<AActor*> WalkPointsActor;
 
 	//The distance to the target before stopping
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI Settings")

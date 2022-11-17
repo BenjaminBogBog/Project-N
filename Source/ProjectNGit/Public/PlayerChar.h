@@ -17,6 +17,7 @@
 #include "Math/TransformNonVectorized.h"
 #include "Kismet/GameplayStatics.h"
 #include "ProjectNGameInstance.h"
+#include "ProjectNGameMode.h"
 
 #include "PlayerChar.generated.h"
 

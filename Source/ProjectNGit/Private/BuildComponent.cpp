@@ -86,7 +86,6 @@ void UBuildComponent::BuildCycle()
 	FVector TraceEnd = Camera->GetComponentLocation() + Camera->GetForwardVector() * 1000;
 
 	FHitResult hit;
-	GetWorld()->LineTraceSingleByChannel(hit, TraceStart, TraceEnd, ECollisionChannel::ECC_Visibility);
 
 	if (GetWorld()->LineTraceSingleByChannel(hit, TraceStart, TraceEnd, ECollisionChannel::ECC_Visibility)) {
 

@@ -19,9 +19,15 @@ void AEnemyAI::BeginPlay()
 {
 	Super::BeginPlay();
 
+	CurrentGameMode = Cast<AProjectNGameMode>(GetWorld()->GetAuthGameMode());
+
+	if (CurrentGameMode)
+		WalkPointsActor = CurrentGameMode->WalkPoints;
+	else
+		UE_LOG(LogTemp, Warning, TEXT("GameMode not found"));
+
 	if (pawnSense != nullptr) {
 		pawnSense->bHearNoises = false;
-		UE_LOG(LogTemp, Warning, TEXT("PAWN SENSE: %f"), pawnSense->HearingThreshold);
 
 		//Binds Function to the OnSeePawn delegate
 		pawnSense->OnSeePawn.AddDynamic(this, &AEnemyAI::OnSeePawn);
@@ -45,7 +51,10 @@ void AEnemyAI::BeginPlay()
 	AIController = Cast<AAIController>(GetController());
 	currentAIState = EAIState::Patrol;
 	WalkPointIndex = 0;
-	AIController->MoveToActor(WalkPointsActor[WalkPointIndex]);
+
+	if(CurrentGameMode->WalkPoints.Num() > 0)
+		AIController->MoveToActor(CurrentGameMode->WalkPoints[WalkPointIndex]);
+
 	bCanWalk = false;
 }
 
@@ -61,40 +70,46 @@ void AEnemyAI::Tick(float DeltaTime)
 	FTimerHandle TimerHandle;
 
 	//When AI is Idle, meaning it has reached a WalkPoint, start a timer for 2.0 seconds before continuing its walk path
-	if (AIController->GetMoveStatus() == EPathFollowingStatus::Idle) {
+	if (AIController) {
+		if (AIController->GetMoveStatus() == EPathFollowingStatus::Idle) {
 
-		if (!GetWorld()->GetTimerManager().IsTimerActive(TimerHandle) && !bWalkBoolDebounce) {
-			GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AEnemyAI::AIMoveDelay, 2.0f, false);
-			bWalkBoolDebounce = true;
+			if (!GetWorld()->GetTimerManager().IsTimerActive(TimerHandle) && !bWalkBoolDebounce) {
+				GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AEnemyAI::AIMoveDelay, 2.0f, false);
+				bWalkBoolDebounce = true;
+			}
 		}
 	}
+	
 
 	//Stop AI when the distance is less than **AIStopDistance** meters from the current walkpoint
-	if (FVector::Dist(GetActorLocation(), WalkPointsActor[WalkPointIndex]->GetActorLocation()) <= AIStopDistance) {
+	if (CurrentGameMode->WalkPoints.Num() > 0) {
+		if (FVector::Dist(GetActorLocation(), CurrentGameMode->WalkPoints[WalkPointIndex]->GetActorLocation()) <= AIStopDistance) {
 
-		AIController->StopMovement();
+			AIController->StopMovement();
 
-		if (WalkPointIndex + 1 < WalkPointsActor.Num()) {
+			if (WalkPointIndex + 1 < CurrentGameMode->WalkPoints.Num()) {
 
-			if (bCanWalk) {
-				AIController->MoveToActor(WalkPointsActor[WalkPointIndex + 1]);
-				WalkPointIndex++;
-				bCanWalk = false;
-				bWalkBoolDebounce = false;
+				if (bCanWalk) {
+					AIController->MoveToActor(CurrentGameMode->WalkPoints[WalkPointIndex + 1]);
+					WalkPointIndex++;
+					bCanWalk = false;
+					bWalkBoolDebounce = false;
+				}
+
 			}
-			
-		}
-		else {
+			else {
 
-			if (bCanWalk) {
-				WalkPointIndex = 0;
-				AIController->MoveToActor(WalkPointsActor[WalkPointIndex]);
-				bCanWalk = false;
-				bWalkBoolDebounce = false;
+				if (bCanWalk) {
+					WalkPointIndex = 0;
+					AIController->MoveToActor(CurrentGameMode->WalkPoints[WalkPointIndex]);
+					bCanWalk = false;
+					bWalkBoolDebounce = false;
+				}
 			}
+
 		}
-		
 	}
+	
 
 	//Adding DeltaTime every tick to make an accurate timer
 	intervalTime += DeltaTime;
@@ -113,14 +128,18 @@ void AEnemyAI::Tick(float DeltaTime)
 				GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Red, TEXT("PATROL"));
 				currentAIState = EAIState::Patrol;
 
-				AIController->MoveToActor(WalkPointsActor[WalkPointIndex]);
+				if(CurrentGameMode->WalkPoints.Num() > 0)
+					AIController->MoveToActor(CurrentGameMode->WalkPoints[WalkPointIndex]);
+
 				GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 			}
 			else {
 				GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Red, TEXT("PUSHING"));
 				currentAIState = EAIState::Pushing;
 
-				AIController->MoveToActor(LastSeen);
+				if(LastSeen)
+					AIController->MoveToActor(LastSeen);
+
 				GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
 
 			}

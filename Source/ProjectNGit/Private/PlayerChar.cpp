@@ -48,6 +48,11 @@ void APlayerChar::BeginPlay()
 {
 	Super::BeginPlay();
 
+	AProjectNGameMode* GameMode = Cast<AProjectNGameMode>(GetWorld()->GetAuthGameMode());
+
+	if (GameMode)
+		GameMode->PlayerActor = GetOwner();
+
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 
 	bCanAttack = true;
