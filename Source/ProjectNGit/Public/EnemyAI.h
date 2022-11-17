@@ -37,7 +37,8 @@ public:
 	// Sets default values for this character's properties
 	AEnemyAI();
 
-	AProjectNGameMode* CurrentGameMode;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI Settings")
+		AProjectNGameMode* CurrentGameMode;
 
 	//Pawn Sense Component which senses pawns, mostly used to sense players in this case
 	UPROPERTY(Category = "AI Settings", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))

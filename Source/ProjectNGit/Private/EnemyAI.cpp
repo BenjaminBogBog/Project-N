@@ -21,10 +21,6 @@ void AEnemyAI::BeginPlay()
 
 	CurrentGameMode = Cast<AProjectNGameMode>(GetWorld()->GetAuthGameMode());
 
-	if (CurrentGameMode)
-		WalkPointsActor = CurrentGameMode->WalkPoints;
-	else
-		UE_LOG(LogTemp, Warning, TEXT("GameMode not found"));
 
 	if (pawnSense != nullptr) {
 		pawnSense->bHearNoises = false;
@@ -51,9 +47,6 @@ void AEnemyAI::BeginPlay()
 	AIController = Cast<AAIController>(GetController());
 	currentAIState = EAIState::Patrol;
 	WalkPointIndex = 0;
-
-	if(CurrentGameMode->WalkPoints.Num() > 0)
-		AIController->MoveToActor(CurrentGameMode->WalkPoints[WalkPointIndex]);
 
 	bCanWalk = false;
 }
@@ -83,6 +76,11 @@ void AEnemyAI::Tick(float DeltaTime)
 
 	//Stop AI when the distance is less than **AIStopDistance** meters from the current walkpoint
 	if (CurrentGameMode->WalkPoints.Num() > 0) {
+
+		if (!AIController->IsFollowingAPath() && currentAIState == EAIState::Patrol) {
+			AIController->MoveToActor(CurrentGameMode->WalkPoints[WalkPointIndex]);
+		}
+
 		if (FVector::Dist(GetActorLocation(), CurrentGameMode->WalkPoints[WalkPointIndex]->GetActorLocation()) <= AIStopDistance) {
 
 			AIController->StopMovement();
@@ -186,6 +184,7 @@ void AEnemyAI::Tick(float DeltaTime)
 	}
 	
 }
+
 
 // Called to bind functionality to input
 void AEnemyAI::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

@@ -51,7 +51,7 @@ void AProjectNGameMode::EnemySpawn()
 
 	FVector SpawnLocation = FVector(XSpawn, YSpawn, ZSpawn);
 
-	AActor* EnemyActor = GetWorld()->SpawnActor<AActor>(EnemyObjectToSpawn, SpawnLocation, FRotator3d(0, 0, 0));
+	AEnemyAI* EnemyActor = GetWorld()->SpawnActor<AEnemyAI>(EnemyObjectToSpawn, SpawnLocation, FRotator3d(0, 0, 0));
 
 	UE_LOG(LogTemp, Warning, TEXT("SPAWN ENEMY at Vector3(%f, %f, %f)"), hit.Location.X, hit.Location.Y, hit.Location.Z);
 }
