@@ -22,5 +22,7 @@ public:
 
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"), Category = "Game Settings")
 		TMap<FString, TSubclassOf<AWeaponClass>> WeaponBlueprints;
+
+
 	
 };
